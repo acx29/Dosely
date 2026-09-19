@@ -1,0 +1,61 @@
+{
+  "period": "Last 90 days",
+  "visit_rate_usd": 150,
+  "found": 412,
+  "contacted": 380,
+  "booked": 141,
+  "seen": 118,
+  "baseline_expected_returns": 31,
+  "by_condition": [
+    {
+      "condition": "Hypertension",
+      "overdue": 124,
+      "booked": 44,
+      "seen": 38
+    },
+    {
+      "condition": "Type 2 diabetes",
+      "overdue": 96,
+      "booked": 37,
+      "seen": 31
+    },
+    {
+      "condition": "Hyperlipidemia",
+      "overdue": 71,
+      "booked": 22,
+      "seen": 18
+    },
+    {
+      "condition": "Asthma and COPD",
+      "overdue": 48,
+      "booked": 15,
+      "seen": 12
+    },
+    {
+      "condition": "Hypothyroidism",
+      "overdue": 39,
+      "booked": 13,
+      "seen": 11
+    },
+    {
+      "condition": "Other",
+      "overdue": 34,
+      "booked": 10,
+      "seen": 8
+    }
+  ],
+  "needs_attention": [
+    {
+      "patient": "David Kim",
+      "reason": "Call failed twice. No text consent on file."
+    },
+    {
+      "patient": "John Smith",
+      "reason": "Asked whether fasting labs are needed."
+    },
+    {
+      "patient": "Evelyn Brooks",
+      "reason": "Replied by text with a question about transportation."
+    }
+  ]
+}

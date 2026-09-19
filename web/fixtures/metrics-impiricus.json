@@ -1,0 +1,64 @@
+{
+  "period": "Last 30 days",
+  "practices_active": 24,
+  "weekly_physician_opens": 310,
+  "patients_recalled": 9120,
+  "visits_booked": 3380,
+  "campaigns": [
+    {
+      "drug_id": "glucora",
+      "brand_name": "Glucora",
+      "label_name": "Glucora 500 mg",
+      "manufacturer": "NovaCura Pharmaceuticals",
+      "therapeutic_area": "Diabetes",
+      "panels_shown": 1284,
+      "physicians_reached": 212,
+      "label_views": 341,
+      "booked": 402
+    },
+    {
+      "drug_id": "cardiveil",
+      "brand_name": "Cardiveil",
+      "label_name": "Cardiveil 10 mg",
+      "manufacturer": "Meridian Therapeutics",
+      "therapeutic_area": "Hypertension",
+      "panels_shown": 1102,
+      "physicians_reached": 198,
+      "label_views": 263,
+      "booked": 351
+    },
+    {
+      "drug_id": "lipidex",
+      "brand_name": "Lipidex",
+      "label_name": "Lipidex 20 mg",
+      "manufacturer": "Asterion Pharma",
+      "therapeutic_area": "Hyperlipidemia",
+      "panels_shown": 847,
+      "physicians_reached": 164,
+      "label_views": 190,
+      "booked": 248
+    },
+    {
+      "drug_id": "aerolin-xr",
+      "brand_name": "Aerolin XR",
+      "label_name": "Aerolin XR",
+      "manufacturer": "HelixBio",
+      "therapeutic_area": "Respiratory",
+      "panels_shown": 512,
+      "physicians_reached": 97,
+      "label_views": 118,
+      "booked": 139
+    },
+    {
+      "drug_id": "thyrona",
+      "brand_name": "Thyrona",
+      "label_name": "Thyrona 50 mcg",
+      "manufacturer": "Vertexa Health",
+      "therapeutic_area": "Endocrine",
+      "panels_shown": 306,
+      "physicians_reached": 71,
+      "label_views": 64,
+      "booked": 88
+    }
+  ]
+}

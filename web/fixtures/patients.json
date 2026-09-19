@@ -1,0 +1,329 @@
+{
+  "john-smith": {
+    "id": "john-smith",
+    "name": "John Smith",
+    "age": 58,
+    "status": "booked",
+    "follow_up": {
+      "last_visit": "2025-07-09",
+      "interval_months": 6,
+      "due": "2026-01-09",
+      "months_overdue": 8
+    },
+    "clinical": {
+      "conditions": [
+        {
+          "name": "Type 2 diabetes",
+          "icd10": "E11.9"
+        }
+      ],
+      "medications": [
+        "Metformin 1000 mg, twice daily"
+      ],
+      "last_lab": {
+        "name": "A1C",
+        "value": "8.4%",
+        "date": "2025-07-09",
+        "flag": "above goal"
+      },
+      "note": "A1C above goal on metformin. Discussed diet. Recheck in 6 months and reassess therapy."
+    },
+    "appointment": {
+      "at": "2026-09-22T09:30:00-04:00",
+      "with": "Dr. Patel · Joel's Clinic"
+    },
+    "action_needed": [
+      "Patient asked whether fasting labs are needed."
+    ],
+    "call_summary": {
+      "channel": "Voice agent",
+      "identity_verified": "Yes, date of birth",
+      "patient_response": "Agreed to schedule",
+      "duration": "1m 31s"
+    },
+    "timeline": [
+      {
+        "at": "2026-09-19T13:52:00-04:00",
+        "label": "Recall started automatically",
+        "kind": "approval"
+      },
+      {
+        "at": "2026-09-19T13:52:20-04:00",
+        "label": "Call placed",
+        "kind": "call"
+      },
+      {
+        "at": "2026-09-19T13:53:00-04:00",
+        "label": "Call answered · identity verified",
+        "kind": "call"
+      },
+      {
+        "at": "2026-09-19T13:54:40-04:00",
+        "label": "Appointment booked",
+        "kind": "booking"
+      },
+      {
+        "at": "2026-09-19T13:55:00-04:00",
+        "label": "Confirmation text sent",
+        "kind": "booking"
+      }
+    ],
+    "transcript": {
+      "at": "2026-09-19T13:53:00-04:00",
+      "items": [
+        {
+          "type": "line",
+          "t": "0:00",
+          "speaker": "agent",
+          "text": "Hi, may I speak with John?"
+        },
+        {
+          "type": "line",
+          "t": "0:04",
+          "speaker": "patient",
+          "text": "Speaking."
+        },
+        {
+          "type": "line",
+          "t": "0:06",
+          "speaker": "agent",
+          "text": "I'm a virtual scheduling assistant calling on behalf of Joel's Clinic. This call may be recorded and transcribed for scheduling and quality purposes. Before we continue, can you confirm your date of birth?"
+        },
+        {
+          "type": "line",
+          "t": "0:19",
+          "speaker": "patient",
+          "text": "March 14th, 1968."
+        },
+        {
+          "type": "tool",
+          "text": "verify_patient() → verified"
+        },
+        {
+          "type": "line",
+          "t": "0:24",
+          "speaker": "agent",
+          "text": "Thank you. We noticed you're due for a follow-up appointment with your care team. Would you like me to help schedule one?"
+        },
+        {
+          "type": "line",
+          "t": "0:33",
+          "speaker": "patient",
+          "text": "Sure, yeah."
+        },
+        {
+          "type": "tool",
+          "text": "get_available_appointments() → 3 slots"
+        },
+        {
+          "type": "line",
+          "t": "0:36",
+          "speaker": "agent",
+          "text": "I have Tuesday at 9:30 AM, Wednesday at 2:00 PM, or Friday at 11:15 AM. Would any of those work?"
+        },
+        {
+          "type": "line",
+          "t": "0:47",
+          "speaker": "patient",
+          "text": "Tuesday morning works."
+        },
+        {
+          "type": "line",
+          "t": "0:50",
+          "speaker": "agent",
+          "text": "Just to confirm, that's Tuesday, September 22nd at 9:30 AM. Shall I book it?"
+        },
+        {
+          "type": "line",
+          "t": "0:57",
+          "speaker": "patient",
+          "text": "Yes, please."
+        },
+        {
+          "type": "tool",
+          "text": "book_appointment(2026-09-22T09:30) → confirmed"
+        },
+        {
+          "type": "line",
+          "t": "1:02",
+          "speaker": "agent",
+          "text": "You're scheduled for Tuesday at 9:30 AM. We'll send a confirmation by text. Is there anything else I can help with?"
+        },
+        {
+          "type": "line",
+          "t": "1:11",
+          "speaker": "patient",
+          "text": "Do I need to fast for labs before I come in?"
+        },
+        {
+          "type": "line",
+          "t": "1:16",
+          "speaker": "agent",
+          "text": "Good question. I'll pass that to the clinic staff and they'll get back to you before your visit."
+        },
+        {
+          "type": "tool",
+          "text": "escalate_to_staff(\"fasting labs before visit\")",
+          "escalation": true
+        },
+        {
+          "type": "line",
+          "t": "1:24",
+          "speaker": "patient",
+          "text": "Okay, thanks."
+        },
+        {
+          "type": "line",
+          "t": "1:26",
+          "speaker": "agent",
+          "text": "Thank you, John. We'll see you Tuesday. Goodbye."
+        }
+      ]
+    },
+    "sms_thread": [
+      {
+        "direction": "out",
+        "at": "2026-09-19T13:55:00-04:00",
+        "text": "Your appointment with Joel's Clinic is confirmed for Tue, Sep 22 at 9:30 AM. Reply C to cancel or call (555) 014-9000 to reschedule."
+      }
+    ],
+    "sponsored_panel": {
+      "drug_id": "glucora",
+      "brand_name": "Glucora",
+      "manufacturer": "NovaCura Pharmaceuticals",
+      "drug_class": "SGLT2 inhibitor",
+      "ad_text": "[Static manufacturer text. Pre-approved copy for this campaign goes here.]",
+      "why_facts": [
+        {
+          "label": "Diagnosis on file",
+          "value": "Type 2 diabetes"
+        },
+        {
+          "label": "Current medication",
+          "value": "Metformin"
+        },
+        {
+          "label": "Last A1C",
+          "value": "8.4% · above 7.5% threshold"
+        }
+      ],
+      "label_url": "/doctor/labels/glucora"
+    }
+  },
+  "maria-lopez": {
+    "id": "maria-lopez",
+    "name": "Maria Lopez",
+    "age": 46,
+    "status": "text_sent",
+    "follow_up": {
+      "last_visit": "2025-08-12",
+      "interval_months": 6,
+      "due": "2026-02-12",
+      "months_overdue": 7
+    },
+    "clinical": {
+      "conditions": [
+        {
+          "name": "Hypothyroidism",
+          "icd10": "E03.9"
+        }
+      ],
+      "medications": [
+        "Levothyroxine 75 mcg, once daily"
+      ],
+      "last_lab": {
+        "name": "TSH",
+        "value": "5.8 mIU/L",
+        "date": "2025-08-12",
+        "flag": "above range"
+      },
+      "note": "TSH mildly elevated. Dose adjusted. Recheck TSH in 6 months."
+    },
+    "action_needed": [],
+    "call_summary": {
+      "channel": "Voice agent, then text",
+      "identity_verified": "Not reached",
+      "patient_response": "Replied YES by text",
+      "duration": "No answer"
+    },
+    "timeline": [
+      {
+        "at": "2026-09-19T14:02:00-04:00",
+        "label": "Recall started automatically",
+        "kind": "approval"
+      },
+      {
+        "at": "2026-09-19T14:02:15-04:00",
+        "label": "Call placed",
+        "kind": "call"
+      },
+      {
+        "at": "2026-09-19T14:02:50-04:00",
+        "label": "No answer",
+        "kind": "problem"
+      },
+      {
+        "at": "2026-09-19T14:03:00-04:00",
+        "label": "Fallback text sent",
+        "kind": "sms"
+      },
+      {
+        "at": "2026-09-19T14:09:00-04:00",
+        "label": "Patient replied YES",
+        "kind": "sms"
+      }
+    ],
+    "sms_thread": [
+      {
+        "direction": "out",
+        "at": "2026-09-19T14:03:00-04:00",
+        "text": "Hi Maria, this is Joel's Clinic. We're reaching out about scheduling your next appointment. Reply YES for help booking, or call (555) 014-9000."
+      },
+      {
+        "direction": "in",
+        "at": "2026-09-19T14:09:00-04:00",
+        "text": "YES"
+      }
+    ],
+    "sponsored_panel": null
+  },
+  "robert-chen": {
+    "id": "robert-chen",
+    "name": "Robert Chen",
+    "age": 67,
+    "status": "queued",
+    "follow_up": {
+      "last_visit": "2025-05-06",
+      "interval_months": 6,
+      "due": "2025-11-06",
+      "months_overdue": 10
+    },
+    "clinical": {
+      "conditions": [
+        {
+          "name": "Type 2 diabetes",
+          "icd10": "E11.22"
+        },
+        {
+          "name": "Chronic kidney disease, stage 4",
+          "icd10": "N18.4"
+        }
+      ],
+      "medications": [
+        "Insulin glargine 24 units, nightly",
+        "Lisinopril 20 mg, once daily"
+      ],
+      "last_lab": {
+        "name": "eGFR",
+        "value": "24 mL/min",
+        "date": "2025-05-06",
+        "flag": "stage 4"
+      },
+      "note": "Kidney function declining. Nephrology co-managing. Follow up in 6 months with labs."
+    },
+    "action_needed": [],
+    "timeline": [],
+    "sms_thread": [],
+    "sponsored_panel": null
+  }
+}

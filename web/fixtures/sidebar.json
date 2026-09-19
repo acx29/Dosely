@@ -1,0 +1,36 @@
+{
+  "agent": {
+    "active": true,
+    "calls_in_progress": 1,
+    "texts_awaiting_reply": 2,
+    "booked_today": 4
+  },
+  "activity": [
+    {
+      "at": "2026-09-19T14:09:00-04:00",
+      "text": "Maria Lopez replied YES",
+      "kind": "sms"
+    },
+    {
+      "at": "2026-09-19T14:05:00-04:00",
+      "text": "Aisha Rahman · call in progress",
+      "kind": "call"
+    },
+    {
+      "at": "2026-09-19T13:55:00-04:00",
+      "text": "John Smith booked Tue 9:30 AM",
+      "kind": "booking"
+    },
+    {
+      "at": "2026-09-19T13:48:00-04:00",
+      "text": "Evelyn Brooks booked Wed 11:15 AM",
+      "kind": "booking"
+    },
+    {
+      "at": "2026-09-19T13:41:00-04:00",
+      "text": "David Kim · call failed twice",
+      "kind": "problem"
+    }
+  ],
+  "new_bookings": 4
+}

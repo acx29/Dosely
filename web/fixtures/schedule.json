@@ -1,0 +1,425 @@
+{
+  "week_start": "2026-09-21",
+  "providers": [
+    {
+      "id": "patel",
+      "name": "Dr. Patel",
+      "role": "physician"
+    },
+    {
+      "id": "lee",
+      "name": "Dr. Lee",
+      "role": "physician"
+    },
+    {
+      "id": "gomez",
+      "name": "NP Gomez",
+      "role": "np"
+    }
+  ],
+  "events": [
+    {
+      "id": "ev1",
+      "provider_id": "patel",
+      "start": "2026-09-21T08:30:00-04:00",
+      "end": "2026-09-21T09:00:00-04:00",
+      "label": "Annual physical"
+    },
+    {
+      "id": "ev2",
+      "provider_id": "patel",
+      "start": "2026-09-21T10:00:00-04:00",
+      "end": "2026-09-21T10:30:00-04:00",
+      "label": "Follow-up"
+    },
+    {
+      "id": "ev3",
+      "provider_id": "patel",
+      "start": "2026-09-21T11:00:00-04:00",
+      "end": "2026-09-21T12:00:00-04:00",
+      "label": "New patient"
+    },
+    {
+      "id": "ev4",
+      "provider_id": "patel",
+      "start": "2026-09-21T15:00:00-04:00",
+      "end": "2026-09-21T15:30:00-04:00",
+      "label": "Follow-up"
+    },
+    {
+      "id": "ev5",
+      "provider_id": "patel",
+      "start": "2026-09-22T08:00:00-04:00",
+      "end": "2026-09-22T08:30:00-04:00",
+      "label": "Follow-up"
+    },
+    {
+      "id": "ev6",
+      "provider_id": "patel",
+      "start": "2026-09-22T10:30:00-04:00",
+      "end": "2026-09-22T11:00:00-04:00",
+      "label": "Telehealth"
+    },
+    {
+      "id": "ev7",
+      "provider_id": "patel",
+      "start": "2026-09-22T13:00:00-04:00",
+      "end": "2026-09-22T14:00:00-04:00",
+      "label": "Procedure"
+    },
+    {
+      "id": "ev8",
+      "provider_id": "patel",
+      "start": "2026-09-23T09:00:00-04:00",
+      "end": "2026-09-23T09:30:00-04:00",
+      "label": "Follow-up"
+    },
+    {
+      "id": "ev9",
+      "provider_id": "patel",
+      "start": "2026-09-23T13:30:00-04:00",
+      "end": "2026-09-23T14:00:00-04:00",
+      "label": "Annual physical"
+    },
+    {
+      "id": "ev10",
+      "provider_id": "patel",
+      "start": "2026-09-23T15:00:00-04:00",
+      "end": "2026-09-23T16:00:00-04:00",
+      "label": "New patient"
+    },
+    {
+      "id": "ev11",
+      "provider_id": "patel",
+      "start": "2026-09-24T08:30:00-04:00",
+      "end": "2026-09-24T09:30:00-04:00",
+      "label": "New patient"
+    },
+    {
+      "id": "ev12",
+      "provider_id": "patel",
+      "start": "2026-09-24T11:00:00-04:00",
+      "end": "2026-09-24T11:30:00-04:00",
+      "label": "Follow-up"
+    },
+    {
+      "id": "ev13",
+      "provider_id": "patel",
+      "start": "2026-09-24T14:00:00-04:00",
+      "end": "2026-09-24T14:30:00-04:00",
+      "label": "Telehealth"
+    },
+    {
+      "id": "ev14",
+      "provider_id": "patel",
+      "start": "2026-09-25T09:00:00-04:00",
+      "end": "2026-09-25T10:00:00-04:00",
+      "label": "Procedure"
+    },
+    {
+      "id": "ev15",
+      "provider_id": "patel",
+      "start": "2026-09-25T11:30:00-04:00",
+      "end": "2026-09-25T12:00:00-04:00",
+      "label": "Follow-up"
+    },
+    {
+      "id": "ev16",
+      "provider_id": "patel",
+      "start": "2026-09-25T14:00:00-04:00",
+      "end": "2026-09-25T14:30:00-04:00",
+      "label": "Follow-up"
+    },
+    {
+      "id": "ev17",
+      "provider_id": "lee",
+      "start": "2026-09-21T09:00:00-04:00",
+      "end": "2026-09-21T10:00:00-04:00",
+      "label": "New patient"
+    },
+    {
+      "id": "ev18",
+      "provider_id": "lee",
+      "start": "2026-09-21T13:00:00-04:00",
+      "end": "2026-09-21T13:30:00-04:00",
+      "label": "Follow-up"
+    },
+    {
+      "id": "ev19",
+      "provider_id": "lee",
+      "start": "2026-09-22T11:00:00-04:00",
+      "end": "2026-09-22T11:30:00-04:00",
+      "label": "Follow-up"
+    },
+    {
+      "id": "ev20",
+      "provider_id": "lee",
+      "start": "2026-09-22T14:00:00-04:00",
+      "end": "2026-09-22T15:00:00-04:00",
+      "label": "Procedure"
+    },
+    {
+      "id": "ev21",
+      "provider_id": "lee",
+      "start": "2026-09-23T08:30:00-04:00",
+      "end": "2026-09-23T09:00:00-04:00",
+      "label": "Telehealth"
+    },
+    {
+      "id": "ev22",
+      "provider_id": "lee",
+      "start": "2026-09-23T10:00:00-04:00",
+      "end": "2026-09-23T10:30:00-04:00",
+      "label": "Follow-up"
+    },
+    {
+      "id": "ev23",
+      "provider_id": "lee",
+      "start": "2026-09-24T09:30:00-04:00",
+      "end": "2026-09-24T10:00:00-04:00",
+      "label": "Follow-up"
+    },
+    {
+      "id": "ev24",
+      "provider_id": "lee",
+      "start": "2026-09-24T13:00:00-04:00",
+      "end": "2026-09-24T14:00:00-04:00",
+      "label": "New patient"
+    },
+    {
+      "id": "ev25",
+      "provider_id": "lee",
+      "start": "2026-09-25T10:00:00-04:00",
+      "end": "2026-09-25T10:30:00-04:00",
+      "label": "Annual physical"
+    },
+    {
+      "id": "ev26",
+      "provider_id": "gomez",
+      "start": "2026-09-21T08:00:00-04:00",
+      "end": "2026-09-21T08:30:00-04:00",
+      "label": "Follow-up"
+    },
+    {
+      "id": "ev27",
+      "provider_id": "gomez",
+      "start": "2026-09-21T10:30:00-04:00",
+      "end": "2026-09-21T11:00:00-04:00",
+      "label": "Follow-up"
+    },
+    {
+      "id": "ev28",
+      "provider_id": "gomez",
+      "start": "2026-09-21T15:30:00-04:00",
+      "end": "2026-09-21T16:00:00-04:00",
+      "label": "Telehealth"
+    },
+    {
+      "id": "ev29",
+      "provider_id": "gomez",
+      "start": "2026-09-22T08:30:00-04:00",
+      "end": "2026-09-22T09:00:00-04:00",
+      "label": "Follow-up"
+    },
+    {
+      "id": "ev30",
+      "provider_id": "gomez",
+      "start": "2026-09-22T13:30:00-04:00",
+      "end": "2026-09-22T14:00:00-04:00",
+      "label": "Follow-up"
+    },
+    {
+      "id": "ev31",
+      "provider_id": "gomez",
+      "start": "2026-09-23T09:30:00-04:00",
+      "end": "2026-09-23T10:00:00-04:00",
+      "label": "Follow-up"
+    },
+    {
+      "id": "ev32",
+      "provider_id": "gomez",
+      "start": "2026-09-23T14:00:00-04:00",
+      "end": "2026-09-23T14:30:00-04:00",
+      "label": "Annual physical"
+    },
+    {
+      "id": "ev33",
+      "provider_id": "gomez",
+      "start": "2026-09-24T10:00:00-04:00",
+      "end": "2026-09-24T10:30:00-04:00",
+      "label": "Follow-up"
+    },
+    {
+      "id": "ev34",
+      "provider_id": "gomez",
+      "start": "2026-09-24T11:30:00-04:00",
+      "end": "2026-09-24T12:00:00-04:00",
+      "label": "Telehealth"
+    },
+    {
+      "id": "ev35",
+      "provider_id": "gomez",
+      "start": "2026-09-25T09:00:00-04:00",
+      "end": "2026-09-25T09:30:00-04:00",
+      "label": "Follow-up"
+    },
+    {
+      "id": "ev36",
+      "provider_id": "gomez",
+      "start": "2026-09-25T13:00:00-04:00",
+      "end": "2026-09-25T13:30:00-04:00",
+      "label": "Follow-up"
+    }
+  ],
+  "bookings": [
+    {
+      "id": "apt1",
+      "patient_id": "marcus-reed",
+      "patient_name": "Marcus Reed",
+      "age": 52,
+      "conditions": [
+        "Hyperlipidemia"
+      ],
+      "start": "2026-09-21T14:00:00-04:00",
+      "end": "2026-09-21T14:30:00-04:00",
+      "provider_id": "patel",
+      "months_overdue": 4,
+      "via": "Call · 1m 12s",
+      "note": "Agreed right away. No questions.",
+      "review_state": "new",
+      "alt_slots": [
+        {
+          "slot_id": "s10",
+          "start": "2026-09-22T14:30:00-04:00",
+          "end": "2026-09-22T15:00:00-04:00"
+        },
+        {
+          "slot_id": "s11",
+          "start": "2026-09-23T10:30:00-04:00",
+          "end": "2026-09-23T11:00:00-04:00"
+        },
+        {
+          "slot_id": "s12",
+          "start": "2026-09-25T10:30:00-04:00",
+          "end": "2026-09-25T11:00:00-04:00"
+        }
+      ],
+      "reassign_options": [
+        "lee",
+        "gomez"
+      ]
+    },
+    {
+      "id": "apt2",
+      "patient_id": "john-smith",
+      "patient_name": "John Smith",
+      "age": 58,
+      "conditions": [
+        "Type 2 diabetes"
+      ],
+      "start": "2026-09-22T09:30:00-04:00",
+      "end": "2026-09-22T10:00:00-04:00",
+      "provider_id": "patel",
+      "months_overdue": 8,
+      "via": "Call · 1m 31s",
+      "note": "Asked whether fasting labs are needed. Passed to staff.",
+      "review_state": "new",
+      "alt_slots": [
+        {
+          "slot_id": "s20",
+          "start": "2026-09-22T14:30:00-04:00",
+          "end": "2026-09-22T15:00:00-04:00"
+        },
+        {
+          "slot_id": "s21",
+          "start": "2026-09-23T10:30:00-04:00",
+          "end": "2026-09-23T11:00:00-04:00"
+        },
+        {
+          "slot_id": "s22",
+          "start": "2026-09-25T10:30:00-04:00",
+          "end": "2026-09-25T11:00:00-04:00"
+        }
+      ],
+      "reassign_options": [
+        "lee",
+        "gomez"
+      ]
+    },
+    {
+      "id": "apt3",
+      "patient_id": "evelyn-brooks",
+      "patient_name": "Evelyn Brooks",
+      "age": 72,
+      "conditions": [
+        "Hypertension",
+        "Hyperlipidemia"
+      ],
+      "start": "2026-09-23T11:15:00-04:00",
+      "end": "2026-09-23T11:45:00-04:00",
+      "provider_id": "patel",
+      "months_overdue": 9,
+      "via": "Text reply",
+      "note": "No answer on the call. Replied YES to the text and picked a time.",
+      "review_state": "new",
+      "alt_slots": [
+        {
+          "slot_id": "s30",
+          "start": "2026-09-22T14:30:00-04:00",
+          "end": "2026-09-22T15:00:00-04:00"
+        },
+        {
+          "slot_id": "s31",
+          "start": "2026-09-24T09:30:00-04:00",
+          "end": "2026-09-24T10:00:00-04:00"
+        },
+        {
+          "slot_id": "s32",
+          "start": "2026-09-25T10:30:00-04:00",
+          "end": "2026-09-25T11:00:00-04:00"
+        }
+      ],
+      "reassign_options": [
+        "lee",
+        "gomez"
+      ]
+    },
+    {
+      "id": "apt4",
+      "patient_id": "priya-nair",
+      "patient_name": "Priya Nair",
+      "age": 34,
+      "conditions": [
+        "Migraine"
+      ],
+      "start": "2026-09-24T15:30:00-04:00",
+      "end": "2026-09-24T16:00:00-04:00",
+      "provider_id": "patel",
+      "months_overdue": 5,
+      "via": "Call · 58s",
+      "note": "Prefers afternoons. Picked the latest slot offered.",
+      "review_state": "new",
+      "alt_slots": [
+        {
+          "slot_id": "s40",
+          "start": "2026-09-22T14:30:00-04:00",
+          "end": "2026-09-22T15:00:00-04:00"
+        },
+        {
+          "slot_id": "s41",
+          "start": "2026-09-23T14:30:00-04:00",
+          "end": "2026-09-23T15:00:00-04:00"
+        },
+        {
+          "slot_id": "s42",
+          "start": "2026-09-25T15:00:00-04:00",
+          "end": "2026-09-25T15:30:00-04:00"
+        }
+      ],
+      "reassign_options": [
+        "lee",
+        "gomez"
+      ]
+    }
+  ]
+}

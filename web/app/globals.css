@@ -1,0 +1,90 @@
+@import "tailwindcss";
+
+/* Design tokens. Use these (bg-page, text-ink, border-line, ...) instead of raw hex. */
+@theme {
+  --font-sans: var(--font-geist-sans), ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+  --font-mono: var(--font-geist-mono), ui-monospace, SFMono-Regular, Menlo, monospace;
+
+  --color-page: #fafaf8;
+  --color-surface: #ffffff;
+  --color-subtle: #f5f3ee;
+  --color-fill: #f0ede7;
+  --color-line: #ebe8e2;
+  --color-line-2: #e5e1da;
+  --color-line-3: #cfcac1;
+
+  --color-ink: #1c1b18;
+  --color-ink-2: #6f6b63;
+  --color-ink-3: #524f49;
+
+  --color-green: #147a57;
+  --color-green-dk: #0f5e43;
+  --color-green-bg: #edf4f0;
+  --color-green-bd: #d6e5dd;
+  --color-green-wash: #f4f9f6;
+
+  --color-blue: #3b5b8c;
+  --color-blue-bg: #edf1f7;
+
+  --color-amber: #8a6414;
+  --color-amber-bg: #fbf3e4;
+  --color-amber-bd: #eedfb8;
+  --color-amber-wash: #fdf8ec;
+
+  --color-red: #b3462b;
+  --color-red-bg: #f9ece7;
+}
+
+html,
+body {
+  height: 100%;
+}
+
+body {
+  background: var(--color-page);
+  color: var(--color-ink);
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+}
+
+@keyframes bottleSpin {
+  from {
+    transform: rotateY(0deg);
+  }
+  to {
+    transform: rotateY(360deg);
+  }
+}
+
+.bottle-spin {
+  animation: bottleSpin 14s linear infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .bottle-spin {
+    animation: none;
+    transform: rotateY(26deg);
+  }
+}
+
+@keyframes pulseDot {
+  0% {
+    box-shadow: 0 0 0 0 rgba(20, 122, 87, 0.35);
+  }
+  70% {
+    box-shadow: 0 0 0 6px rgba(20, 122, 87, 0);
+  }
+  100% {
+    box-shadow: 0 0 0 0 rgba(20, 122, 87, 0);
+  }
+}
+
+.pulse-dot {
+  animation: pulseDot 2s ease-out infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .pulse-dot {
+    animation: none;
+  }
+}

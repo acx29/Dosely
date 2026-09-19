@@ -1,0 +1,100 @@
+// Single data-access layer. Pages never import fixtures directly.
+// With NEXT_PUBLIC_API_URL unset, everything reads web/fixtures. Set it and the
+// same functions hit the real API, so no page changes when the backend lands.
+
+import overdueFixture from "@/fixtures/overdue.json";
+import patientsFixture from "@/fixtures/patients.json";
+import doctorMetricsFixture from "@/fixtures/metrics-doctor.json";
+import impiricusMetricsFixture from "@/fixtures/metrics-impiricus.json";
+import sidebarFixture from "@/fixtures/sidebar.json";
+import scheduleFixture from "@/fixtures/schedule.json";
+import type { DoctorMetrics, ImpiricusMetrics, OverdueRow, PatientCard, ScheduleData, SidebarData } from "./types";
+
+const API = process.env.NEXT_PUBLIC_API_URL;
+
+async function get<T>(path: string): Promise<T> {
+  const res = await fetch(`${API}${path}`, { cache: "no-store" });
+  if (!res.ok) throw new Error(`${path} → ${res.status}`);
+  return (await res.json()) as T;
+}
+
+export async function getOverdue(): Promise<OverdueRow[]> {
+  if (API) return get<OverdueRow[]>("/patients/overdue");
+  return overdueFixture as OverdueRow[];
+}
+
+export async function getPatient(id: string): Promise<PatientCard | null> {
+  if (API) {
+    try {
+      return await get<PatientCard>(`/patients/${id}`);
+    } catch {
+      return null;
+    }
+  }
+  const detailed = (patientsFixture as Record<string, PatientCard>)[id];
+  if (detailed) return detailed;
+
+  // Fixture-only fallback: build a bare card from the queue row so every row opens.
+  const row = (overdueFixture as OverdueRow[]).find((r) => r.id === id);
+  if (!row) return null;
+  return {
+    id: row.id,
+    name: row.name,
+    age: row.age,
+    status: row.status,
+    follow_up: { last_visit: row.last_visit, interval_months: 6, due: row.last_visit, months_overdue: row.months_overdue },
+    clinical: { conditions: row.conditions.map((name) => ({ name })), medications: [] },
+    action_needed: [],
+    timeline: [],
+    sms_thread: [],
+    sponsored_panel: null,
+  };
+}
+
+export async function getDoctorMetrics(): Promise<DoctorMetrics> {
+  if (API) return get<DoctorMetrics>("/metrics/doctor");
+  return doctorMetricsFixture as DoctorMetrics;
+}
+
+export async function getImpiricusMetrics(): Promise<ImpiricusMetrics> {
+  if (API) return get<ImpiricusMetrics>("/metrics/impiricus");
+  return impiricusMetricsFixture as ImpiricusMetrics;
+}
+
+/** Agent status + last few events for the sidebar. Backed by the events table. */
+export async function getSidebar(): Promise<SidebarData> {
+  if (API) return get<SidebarData>("/activity/summary");
+  return sidebarFixture as SidebarData;
+}
+
+export async function getSchedule(): Promise<ScheduleData> {
+  if (API) return get<ScheduleData>("/schedule");
+  return scheduleFixture as ScheduleData;
+}
+
+// ---- actions, all called from the browser. Against fixtures they are no-ops and the UI updates optimistically.
+
+async function post(path: string, body?: unknown): Promise<void> {
+  if (!API) return;
+  const res = await fetch(`${API}${path}`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: body === undefined ? undefined : JSON.stringify(body),
+  });
+  if (!res.ok) throw new Error(`POST ${path} → ${res.status}`);
+}
+
+/** Demo trigger. In production the same job runs on a schedule. */
+export const runRecall = () => post("/recall/run");
+
+/** The brake: take a patient out of (or put back into) the next run. */
+export const setHold = (patientId: string, held: boolean) => post(`/patients/${patientId}/hold`, { held });
+
+/** Clears the "new" badge. Bookings are already firm, so this changes nothing for the patient. */
+export const keepBooking = (appointmentId: string) => post(`/appointments/${appointmentId}/keep`);
+
+/** Moves the appointment and texts the patient the new time. */
+export const rescheduleBooking = (appointmentId: string, slotId: string) => post(`/appointments/${appointmentId}/reschedule`, { slot_id: slotId });
+
+/** Same time, different provider. Texts the patient who they will see. */
+export const reassignBooking = (appointmentId: string, providerId: string) => post(`/appointments/${appointmentId}/reassign`, { provider_id: providerId });
