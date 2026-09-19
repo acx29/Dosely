@@ -4,6 +4,7 @@
 @theme {
   --font-sans: var(--font-geist-sans), ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
   --font-mono: var(--font-geist-mono), ui-monospace, SFMono-Regular, Menlo, monospace;
+  --font-wordmark: var(--font-goudy), "Goudy Old Style", Georgia, serif;
 
   --color-page: #fafaf8;
   --color-surface: #ffffff;
@@ -24,6 +25,7 @@
   --color-green-wash: #f4f9f6;
 
   --color-blue: #3b5b8c;
+  --color-blue-dk: #1f3864;
   --color-blue-bg: #edf1f7;
 
   --color-amber: #8a6414;

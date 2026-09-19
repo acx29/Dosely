@@ -67,8 +67,7 @@ export function Sidebar({
   return (
     <aside className="sticky top-0 flex h-screen w-[264px] shrink-0 flex-col gap-[22px] overflow-y-auto border-r border-line bg-surface px-[14px] py-[18px]">
       <div className="flex items-center gap-[10px] px-1.5">
-        <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-green text-[15px] font-bold text-white">D</div>
-        <div className="text-[15.5px] font-semibold tracking-[-0.01em]">Dosely</div>
+        <div className="font-wordmark text-[28px] leading-none text-blue-dk">Dosely</div>
         <span className="ml-auto whitespace-nowrap rounded-full border border-line-2 px-[9px] py-[3px] text-[11px] font-medium text-ink-2">
           inside DocUpdate
         </span>
