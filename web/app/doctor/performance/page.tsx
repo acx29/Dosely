@@ -59,7 +59,7 @@ export default async function PerformancePage() {
               <div key={f.label} className="grid grid-cols-[84px_minmax(0,1fr)_44px] items-center gap-3">
                 <div className="text-[13px]">{f.label}</div>
                 <div className="h-[22px] rounded bg-fill">
-                  <div className={`h-[22px] rounded ${f.color}`} style={{ width: `${(f.value / m.found) * 100}%` }} />
+                  <div className={`h-[22px] rounded ${f.color}`} style={{ width: `${m.found > 0 ? Math.min(100, (f.value / m.found) * 100) : 0}%` }} />
                 </div>
                 <div className="text-right font-mono text-[13px]">{num(f.value)}</div>
               </div>

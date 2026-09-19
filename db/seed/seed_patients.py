@@ -542,6 +542,8 @@ def plan_doctors(rng, existing_doctors):
             next_number += 1
 
     for clinic, doctors in by_clinic.items():
+        if clinic == DEMO_CLINIC:
+            continue  # the demo practice keeps exactly its named providers, matching the Schedule screen
         specialty = doctors[0]["specialty"]
         while len(doctors) < DOCTORS_PER_PRACTICE:
             new_rows.append(make_doctor(rng, next_number, clinic, specialty))
