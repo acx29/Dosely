@@ -221,6 +221,8 @@ $$;
 -- The earlier version took five settings. Adding a sixth creates a second function with the same
 -- name, and a plain "run_recall()" call could then not tell them apart. Drop the old one first.
 drop function if exists public.run_recall(timestamptz, text, integer, integer, integer);
+-- Same again for the six-setting version, now that there is a seventh.
+drop function if exists public.run_recall(timestamptz, text, integer, integer, integer, bigint[]);
 
 create or replace function public.run_recall(
     p_as_of          timestamptz default now(),
@@ -228,7 +230,9 @@ create or replace function public.run_recall(
     p_window_minutes integer     default 30,   -- calls are spread across this many minutes
     p_demo_batch     integer     default 12,   -- patients contacted per run at the demo practice
     p_other_batch    integer     default 4,    -- patients contacted per run at every other practice
-    p_only_patients  bigint[]    default null) -- when given, contact exactly these patients (if eligible) and nobody else
+    p_only_patients  bigint[]    default null, -- when given, contact exactly these patients (if eligible) and nobody else
+    p_skip_patients  bigint[]    default null) -- when given, never contact these patients. "Run recall now" passes the patients whose
+                                               -- phone is in DEMO_PHONE_WHITELIST, so they stay Queued for the Call button (10_live_calls.sql)
 returns jsonb
 language plpgsql
 set search_path = public
@@ -350,6 +354,7 @@ begin
                                   and ap.status = 'scheduled' and ap.appointment_date > p_as_of)
                -- A targeted run looks only at the listed patients. The same eligibility rules still apply to them.
                and (p_only_patients is null or p.id = any(p_only_patients))
+               and (p_skip_patients is null or p.id <> all(p_skip_patients))
         )
         select * from eligible
          where rk <= case when p_only_patients is not null then cardinality(p_only_patients)
@@ -574,13 +579,13 @@ select o.id, o.patient_id, o.doctor_id, o.clinic_name, o.recall_run_id, o.channe
 -- Only the secret key (service_role) and scheduled database jobs may run these.
 -- ------------------------------------------------------------------
 
-revoke execute on function public.run_recall(timestamptz, text, integer, integer, integer, bigint[]) from public, anon, authenticated;
+revoke execute on function public.run_recall(timestamptz, text, integer, integer, integer, bigint[], bigint[]) from public, anon, authenticated;
 revoke execute on function public.backfill_recall(integer, integer, integer)               from public, anon, authenticated;
 revoke execute on function public.ensure_slots(date, integer)                              from public, anon, authenticated;
 revoke execute on function public.seed_practice_calendar(text)                             from public, anon, authenticated;
 revoke execute on function public.dosely_book(bigint, bigint, bigint, text, text, bigint, timestamptz, text, text, text, boolean, text) from public, anon, authenticated;
 revoke execute on function public.dosely_event(timestamptz, text, bigint, bigint, bigint, text, text, bigint, jsonb) from public, anon, authenticated;
-grant  execute on function public.run_recall(timestamptz, text, integer, integer, integer, bigint[]) to service_role;
+grant  execute on function public.run_recall(timestamptz, text, integer, integer, integer, bigint[], bigint[]) to service_role;
 grant  execute on function public.backfill_recall(integer, integer, integer)               to service_role;
 grant  execute on function public.ensure_slots(date, integer)                              to service_role;
 grant  execute on function public.seed_practice_calendar(text)                             to service_role;

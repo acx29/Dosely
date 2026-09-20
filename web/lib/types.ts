@@ -12,6 +12,12 @@ export interface OverdueRow {
   status: OutreachStatus;
   has_sponsored_panel: boolean;
   booked_for?: string; // ISO datetime, present when status is "booked"
+  /**
+   * True on a "queued" row that a recall run has already picked. The run writes the contact record
+   * at once but stamps the call a few minutes ahead, so the row still reads Queued until that minute.
+   * Such a row cannot be called by hand, so it shows "Calling shortly" instead of a Call button.
+   */
+  in_current_run?: boolean;
   // Optional snapshot used by the review cards. The table ignores these.
   interval_months?: number;
   medications?: string[];

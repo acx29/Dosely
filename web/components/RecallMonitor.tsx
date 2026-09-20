@@ -3,15 +3,16 @@
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useCallback, useMemo, useState } from "react";
-import { runRecall, setHold } from "@/lib/api";
+import { callPatient, runRecall, setHold } from "@/lib/api";
 import { RECALL_BATCH_SIZE } from "@/lib/config";
 import { fmtDate, fmtDayTime, initials } from "@/lib/format";
 import type { OutreachStatus, OverdueRow } from "@/lib/types";
-import { StatusPill } from "./Pill";
+import { Pill, StatusPill } from "./Pill";
 
 /**
  * Recall runs on its own. This screen is a monitor, not an approval queue.
- * The only controls are the demo trigger (Run recall now) and the brake (Hold / Release).
+ * The controls are the demo trigger (Run recall now), Call on a Queued row, which contacts that one
+ * patient right away instead of waiting for the next run, and the brake (Hold / Release).
  */
 
 const AVATARS = ["bg-green-bg text-green-dk", "bg-blue-bg text-blue", "bg-amber-bg text-amber", "bg-fill text-ink-3", "bg-red-bg text-red"];
@@ -34,6 +35,11 @@ const FILTERS: { id: Filter; label: string; test: (r: OverdueRow) => boolean }[]
 ];
 const PAGE_SIZE = 50;
 
+// After a click on Call the row shows Calling at once. The server agrees within a second for a real
+// call, and within about a minute for a simulated one, whose first event is stamped a little ahead of
+// now. Until then the server still reports Queued, so the click is remembered here for this long.
+const CALL_PENDING_MS = 90_000;
+
 function overdueTone(months: number): string {
   if (months >= 8) return "text-red";
   if (months >= 6) return "text-amber";
@@ -55,8 +61,17 @@ export function RecallMonitor({ initialRows }: { initialRows: OverdueRow[] }) {
     setRows(initialRows);
   }
 
-  const count = useCallback((id: Filter) => rows.filter(FILTERS.find((f) => f.id === id)!.test).length, [rows]);
-  const matching = useMemo(() => rows.filter(FILTERS.find((f) => f.id === filter)!.test), [rows, filter]);
+  const [pendingCalls, setPendingCalls] = useState<ReadonlySet<string>>(new Set());
+  const [notice, setNotice] = useState<{ tone: "info" | "error"; text: string } | null>(null);
+
+  // What the table shows: the server's rows, with Calling in place of Queued for rows just clicked.
+  const shownRows = useMemo(
+    () => rows.map((r) => (r.status === "queued" && pendingCalls.has(r.id) ? { ...r, status: "calling" as const } : r)),
+    [rows, pendingCalls],
+  );
+
+  const count = useCallback((id: Filter) => shownRows.filter(FILTERS.find((f) => f.id === id)!.test).length, [shownRows]);
+  const matching = useMemo(() => shownRows.filter(FILTERS.find((f) => f.id === filter)!.test), [shownRows, filter]);
   const visible = matching.slice(0, shown);
 
   function pick(id: Filter) {
@@ -76,6 +91,27 @@ export function RecallMonitor({ initialRows }: { initialRows: OverdueRow[] }) {
     } finally {
       setRunning(false);
     }
+  }
+
+  async function callNow(r: OverdueRow) {
+    const forget = () =>
+      setPendingCalls((prev) => {
+        const next = new Set(prev);
+        next.delete(r.id);
+        return next;
+      });
+    setNotice(null);
+    setPendingCalls((prev) => new Set(prev).add(r.id));
+    try {
+      const result = await callPatient(r.id);
+      setTimeout(forget, CALL_PENDING_MS);
+      if (result.mode === "live") setNotice({ tone: "info", text: `Calling ${r.name} now.` });
+    } catch (err) {
+      // The server refused (on hold, already contacted, ...) or the call could not be placed.
+      forget();
+      setNotice({ tone: "error", text: `${r.name} was not called. ${err instanceof Error ? err.message : String(err)}` });
+    }
+    router.refresh();
   }
 
   async function toggleHold(r: OverdueRow) {
@@ -110,6 +146,20 @@ export function RecallMonitor({ initialRows }: { initialRows: OverdueRow[] }) {
           </button>
         </div>
       </div>
+
+      {notice ? (
+        <div
+          role={notice.tone === "error" ? "alert" : "status"}
+          className={`flex items-center justify-between gap-4 rounded-lg border px-4 py-2.5 text-[13px] ${
+            notice.tone === "error" ? "border-line-2 bg-red-bg text-red" : "border-green-bd bg-green-wash text-green-dk"
+          }`}
+        >
+          <span>{notice.text}</span>
+          <button type="button" onClick={() => setNotice(null)} className="shrink-0 text-xs font-medium underline underline-offset-2">
+            Dismiss
+          </button>
+        </div>
+      ) : null}
 
       <div className="grid grid-cols-4 overflow-hidden rounded-[10px] border border-line bg-surface">
         {[
@@ -191,10 +241,23 @@ export function RecallMonitor({ initialRows }: { initialRows: OverdueRow[] }) {
               <div className="text-[13px] text-ink-2">{fmtDate(r.last_visit)}</div>
               <div className={`text-[13px] font-semibold ${overdueTone(r.months_overdue)}`}>{r.months_overdue} mo</div>
               <div>
-                <StatusPill status={r.status} />
+                {/* Picked by the run that is playing out now, call not placed yet. Still in the Queued group,
+                    but labelled so it is clear the agent already has this patient. */}
+                {r.status === "queued" && r.in_current_run ? <Pill tone="blue">Up next</Pill> : <StatusPill status={r.status} />}
               </div>
-              <div className="flex items-center justify-end">
+              <div className="flex items-center justify-end gap-1.5">
                 {r.status === "booked" && r.booked_for ? <span className="text-[13px] font-medium text-green-dk">{fmtDayTime(r.booked_for)}</span> : null}
+                {/* Only Queued rows nobody has picked can be called. An "Up next" row already has a contact
+                    record from the current run, and the server refuses a second one. */}
+                {r.status === "queued" && !r.in_current_run ? (
+                  <button
+                    type="button"
+                    onClick={() => callNow(r)}
+                    className="h-7 rounded-[7px] border border-ink bg-ink px-[10px] text-xs font-medium text-white hover:bg-ink-3"
+                  >
+                    Call
+                  </button>
+                ) : null}
                 {r.status === "queued" || r.status === "on_hold" ? (
                   <button
                     type="button"
@@ -225,8 +288,8 @@ export function RecallMonitor({ initialRows }: { initialRows: OverdueRow[] }) {
       </div>
 
       <p className="text-xs text-ink-2">
-        Every overdue patient with consent on file is contacted, {RECALL_BATCH_SIZE} per run, most overdue first. Hold takes someone out of the next run.
-        Do-not-contact flags are always respected.
+        Every overdue patient with consent on file is contacted, {RECALL_BATCH_SIZE} per run, most overdue first. Call contacts one queued patient right
+        away. Hold takes someone out of the next run. Do-not-contact flags are always respected.
       </p>
     </div>
   );

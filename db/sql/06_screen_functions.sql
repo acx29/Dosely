@@ -307,7 +307,14 @@ as $$
                                    'duration', case cs.contact_result when 'answered' then (cs.duration_seconds / 60) || 'm ' || (cs.duration_seconds % 60) || 's'
                                                                       when 'busy' then 'Line busy' when 'failed' then 'Call failed' else 'No answer' end)
                            from call_summaries cs, o
-                          where cs.outreach_id = o.id and cs.call_started_at <= now())
+                          where cs.outreach_id = o.id and cs.call_started_at <= now()),
+        -- Only real calls have one (db/sql/10_live_calls.sql stores it after hang-up). Simulated calls
+        -- keep the default empty list, so the card shows no transcript section for them.
+        'transcript', (select jsonb_build_object(
+                                   'at', to_char(cs.call_started_at at time zone 'UTC', 'YYYY-MM-DD"T"HH24:MI:SS"Z"'),
+                                   'items', cs.raw_transcript)
+                         from call_summaries cs, o
+                        where cs.outreach_id = o.id and jsonb_array_length(cs.raw_transcript) > 0)
     )) || jsonb_build_object(
         'action_needed', coalesce((select jsonb_agg(a.text order by a.created_at)
                                      from action_items a where a.patient_id = p_patient and a.resolved_at is null and a.created_at <= now()), '[]'::jsonb),

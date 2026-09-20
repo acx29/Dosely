@@ -102,6 +102,19 @@ export async function explainMatch(patientId: string, drugId: string): Promise<s
 /** Demo trigger. In production the same job runs on a schedule. */
 export const runRecall = () => post("/recall/run");
 
+/**
+ * The Call button on a Queued row: contact this one patient now. "live" means a real phone is
+ * ringing, "simulated" means the contact is played out in the database. Throws with the server's
+ * reason when the patient may not be contacted or the call could not be placed.
+ */
+export async function callPatient(patientId: string): Promise<{ mode: "live" | "simulated" | "fixture"; ringing?: string }> {
+  if (!API) return { mode: "fixture" };
+  const res = await fetch(`${API}/patients/${patientId}/call`, { method: "POST" });
+  const body = (await res.json().catch(() => ({}))) as { mode?: "live" | "simulated"; ringing?: string; error?: string };
+  if (!res.ok || !body.mode) throw new Error(body.error ?? `request failed (${res.status})`);
+  return { mode: body.mode, ringing: body.ringing };
+}
+
 /** The brake: take a patient out of (or put back into) the next run. */
 export const setHold = (patientId: string, held: boolean) => post(`/patients/${patientId}/hold`, { held });
 
