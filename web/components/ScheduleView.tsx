@@ -15,6 +15,15 @@ export function ScheduleView({ data }: { data: ScheduleData }) {
   const [view, setView] = useState<"calendar" | "cards">("calendar");
   const [open, setOpen] = useState<{ id: string; mode: "reschedule" | "reassign" } | null>(null);
 
+  // The page re-fetches on a timer (see AutoRefresh). Take new bookings when they arrive,
+  // but not while a reschedule or reassign picker is open, so it does not change under the user.
+  // Comparing against the previous prop during render is React's pattern for this.
+  const [seenBookings, setSeenBookings] = useState(data.bookings);
+  if (data.bookings !== seenBookings && open === null) {
+    setSeenBookings(data.bookings);
+    setBookings(data.bookings);
+  }
+
   const fresh = useMemo(() => bookings.filter((b) => b.review_state === "new"), [bookings]);
   const nameOf = useCallback((id: string) => data.providers.find((p) => p.id === id)?.name ?? id, [data.providers]);
   const patch = useCallback((id: string, change: Partial<Booking>) => setBookings((prev) => prev.map((b) => (b.id === id ? { ...b, ...change } : b))), []);

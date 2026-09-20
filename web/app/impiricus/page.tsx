@@ -20,8 +20,9 @@ const COLS = "grid grid-cols-[minmax(0,1.5fr)_minmax(0,1fr)_repeat(4,96px)] item
 
 export default async function ImpiricusPage() {
   const m = await getImpiricusMetrics();
-  const top = [...m.campaigns].sort((a, b) => b.panels_shown - a.panels_shown)[0];
-  const dose = top.label_name.replace(top.brand_name, "").trim();
+  // No campaigns yet is a normal state: panels only exist once the matcher has run.
+  const top = [...m.campaigns].sort((a, b) => b.panels_shown - a.panels_shown)[0] ?? null;
+  const dose = top ? top.label_name.replace(top.brand_name, "").trim() : "";
 
   return (
     <div className="flex min-h-screen flex-col bg-page">
@@ -84,8 +85,12 @@ export default async function ImpiricusPage() {
                 <div className="text-right font-mono text-[13px] font-medium text-green-dk">{num(c.booked)}</div>
               </div>
             ))}
+            {m.campaigns.length === 0 ? (
+              <div className="border-t border-line px-6 py-8 text-center text-sm text-ink-2">No sponsored panels have been shown yet.</div>
+            ) : null}
           </section>
 
+          {top ? (
           <section className="flex flex-col items-center gap-[18px] rounded-[10px] border border-line bg-surface px-6 pb-6 pt-5">
             <h2 className="self-start text-[13px] font-medium text-ink-2">Top campaign this period</h2>
             <PillBottle name={top.brand_name} detail={dose ? `${dose} tablets` : undefined} />
@@ -107,6 +112,12 @@ export default async function ImpiricusPage() {
             </div>
             <p className="text-center text-xs leading-normal text-ink-2">Shown where the labeled indication matches a diagnosis on file.</p>
           </section>
+          ) : (
+          <section className="flex flex-col gap-2 rounded-[10px] border border-line bg-surface px-6 pb-6 pt-5">
+            <h2 className="text-[13px] font-medium text-ink-2">Top campaign this period</h2>
+            <p className="text-sm text-ink-2">Nothing to show yet.</p>
+          </section>
+          )}
         </div>
 
         <p className="text-xs text-ink-2">Aggregate data only. No patient-level information is shared with partners.</p>

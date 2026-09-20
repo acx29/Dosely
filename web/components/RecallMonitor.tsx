@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { useCallback, useMemo, useState } from "react";
 import { runRecall, setHold } from "@/lib/api";
 import { fmtDate, fmtDayTime, initials } from "@/lib/format";
@@ -33,21 +34,33 @@ function overdueTone(months: number): string {
 }
 
 export function RecallMonitor({ initialRows }: { initialRows: OverdueRow[] }) {
+  const router = useRouter();
   const [rows, setRows] = useState(initialRows);
   const [filter, setFilter] = useState<Filter>("all");
   const [running, setRunning] = useState(false);
+
+  // The page re-fetches on a timer (see AutoRefresh). When a new set of rows arrives, take it.
+  // Comparing against the previous prop during render is React's pattern for this.
+  const [seenRows, setSeenRows] = useState(initialRows);
+  if (initialRows !== seenRows) {
+    setSeenRows(initialRows);
+    setRows(initialRows);
+  }
 
   const count = useCallback((id: Filter) => rows.filter(FILTERS.find((f) => f.id === id)!.test).length, [rows]);
   const visible = useMemo(() => rows.filter(FILTERS.find((f) => f.id === filter)!.test), [rows, filter]);
 
   async function runNow() {
     setRunning(true);
-    // Optimistic: everyone queued starts getting called. Live status then comes from the API.
-    setRows((prev) => prev.map((r) => (r.status === "queued" ? { ...r, status: "calling" } : r)));
+    // A run contacts one batch, not everyone queued, so nothing is flipped here.
+    // The real statuses come back from the server on the refresh.
     try {
       await runRecall();
+      router.refresh();
     } catch (err) {
       console.error(err);
+    } finally {
+      setRunning(false);
     }
   }
 
