@@ -36,6 +36,26 @@ export interface SponsoredPanelData {
   label_url: string;
 }
 
+/**
+ * One result from the RAG pipeline (Rag/rag_agent.py): a partner drug found by vector similarity
+ * to the patient's diagnoses, medications and visit notes. The pipeline returns the 5 nearest.
+ */
+export interface SponsoredMatch {
+  rank: number;
+  drug_id: string;
+  brand_name: string;
+  generic_name: string;
+  company_name: string;
+  therapeutic_area: string;
+  drug_class: string;
+  indications: string[];
+  /** Cosine similarity between the patient text and the drug text, 0 to 1. */
+  similarity: number;
+  /** Gemini's explanation of why this record surfaced. Null until it has been generated. */
+  why_surfaced: string | null;
+  label_url: string;
+}
+
 export type TimelineKind = "approval" | "call" | "sms" | "booking" | "problem";
 
 export interface TimelineEvent {
@@ -85,6 +105,8 @@ export interface PatientCard {
   transcript?: { at: string; items: TranscriptItem[] };
   sms_thread: SmsMessage[];
   sponsored_panel: SponsoredPanelData | null;
+  /** Top matches from the RAG pipeline, best first. Absent when reading fixtures. */
+  sponsored_matches?: SponsoredMatch[];
 }
 
 export interface DoctorMetrics {

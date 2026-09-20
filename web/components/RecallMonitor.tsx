@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useCallback, useMemo, useState } from "react";
 import { runRecall, setHold } from "@/lib/api";
+import { RECALL_BATCH_SIZE } from "@/lib/config";
 import { fmtDate, fmtDayTime, initials } from "@/lib/format";
 import type { OutreachStatus, OverdueRow } from "@/lib/types";
 import { StatusPill } from "./Pill";
@@ -16,16 +17,22 @@ import { StatusPill } from "./Pill";
 const AVATARS = ["bg-green-bg text-green-dk", "bg-blue-bg text-blue", "bg-amber-bg text-amber", "bg-fill text-ink-3", "bg-red-bg text-red"];
 const COLS = "grid grid-cols-[250px_minmax(0,1fr)_120px_90px_140px_150px] items-center gap-x-4 px-5";
 
-type Filter = "all" | "queued" | "progress" | "booked" | "attention" | "hold";
+type Filter = "contacted" | "queued" | "progress" | "booked" | "attention" | "hold";
 const IN_PROGRESS: OutreachStatus[] = ["calling", "text_sent"];
+const CONTACTED: OutreachStatus[] = ["calling", "text_sent", "booked", "needs_attention"];
+
+// The screen opens on "Contacted": patients the agent has actually reached out to. Patients still
+// waiting their turn are behind the "Queued" chip, shown a page at a time, because that list is
+// the whole backlog (thousands of rows) and nobody needs to read it to follow what the agent is doing.
 const FILTERS: { id: Filter; label: string; test: (r: OverdueRow) => boolean }[] = [
-  { id: "all", label: "All", test: () => true },
-  { id: "queued", label: "Queued", test: (r) => r.status === "queued" },
+  { id: "contacted", label: "Contacted", test: (r) => CONTACTED.includes(r.status) },
   { id: "progress", label: "In progress", test: (r) => IN_PROGRESS.includes(r.status) },
   { id: "booked", label: "Booked", test: (r) => r.status === "booked" },
   { id: "attention", label: "Needs attention", test: (r) => r.status === "needs_attention" },
   { id: "hold", label: "On hold", test: (r) => r.status === "on_hold" },
+  { id: "queued", label: "Queued", test: (r) => r.status === "queued" },
 ];
+const PAGE_SIZE = 50;
 
 function overdueTone(months: number): string {
   if (months >= 8) return "text-red";
@@ -36,7 +43,8 @@ function overdueTone(months: number): string {
 export function RecallMonitor({ initialRows }: { initialRows: OverdueRow[] }) {
   const router = useRouter();
   const [rows, setRows] = useState(initialRows);
-  const [filter, setFilter] = useState<Filter>("all");
+  const [filter, setFilter] = useState<Filter>("contacted");
+  const [shown, setShown] = useState(PAGE_SIZE); // how many rows of the current group are rendered
   const [running, setRunning] = useState(false);
 
   // The page re-fetches on a timer (see AutoRefresh). When a new set of rows arrives, take it.
@@ -48,7 +56,13 @@ export function RecallMonitor({ initialRows }: { initialRows: OverdueRow[] }) {
   }
 
   const count = useCallback((id: Filter) => rows.filter(FILTERS.find((f) => f.id === id)!.test).length, [rows]);
-  const visible = useMemo(() => rows.filter(FILTERS.find((f) => f.id === filter)!.test), [rows, filter]);
+  const matching = useMemo(() => rows.filter(FILTERS.find((f) => f.id === filter)!.test), [rows, filter]);
+  const visible = matching.slice(0, shown);
+
+  function pick(id: Filter) {
+    setFilter(id);
+    setShown(PAGE_SIZE);
+  }
 
   async function runNow() {
     setRunning(true);
@@ -99,18 +113,21 @@ export function RecallMonitor({ initialRows }: { initialRows: OverdueRow[] }) {
 
       <div className="grid grid-cols-4 overflow-hidden rounded-[10px] border border-line bg-surface">
         {[
-          { label: "Overdue, nothing booked", value: rows.length, cls: "" },
-          { label: "Queued for next run", value: count("queued"), cls: "" },
-          { label: "Outreach in progress", value: count("progress"), cls: "text-blue" },
+          { label: "Overdue found", value: rows.length, cls: "", sub: "due date passed, consent on file" },
+          // One run contacts a batch, not the whole queue, so the tile says how many go next.
+          { label: "Waiting to be contacted", value: count("queued"), cls: "", sub: `next run contacts ${Math.min(RECALL_BATCH_SIZE, count("queued"))}` },
+          { label: "Outreach in progress", value: count("progress"), cls: "text-blue", sub: "calling now, or text awaiting reply" },
         ].map((s, i) => (
           <div key={s.label} className={`flex flex-col gap-1.5 px-5 py-4 ${i > 0 ? "border-l border-line" : ""}`}>
             <div className="text-[12.5px] text-ink-2">{s.label}</div>
-            <div className={`font-mono text-2xl font-medium tracking-[-0.03em] ${s.cls}`}>{s.value}</div>
+            <div className={`font-mono text-2xl font-medium tracking-[-0.03em] ${s.cls}`}>{s.value.toLocaleString("en-US")}</div>
+            <div className="text-xs text-ink-2">{s.sub}</div>
           </div>
         ))}
         <div className="flex flex-col gap-1.5 border-l border-green-bd bg-green-wash px-5 py-4">
           <div className="text-[12.5px] text-green-dk">Booked</div>
           <div className="font-mono text-2xl font-medium tracking-[-0.03em] text-green-dk">{count("booked")}</div>
+          <div className="text-xs text-green-dk">on the schedule</div>
         </div>
       </div>
 
@@ -120,12 +137,12 @@ export function RecallMonitor({ initialRows }: { initialRows: OverdueRow[] }) {
             key={f.id}
             type="button"
             aria-pressed={filter === f.id}
-            onClick={() => setFilter(f.id)}
+            onClick={() => pick(f.id)}
             className={`h-[30px] rounded-full border px-3 text-[12.5px] font-medium ${
               filter === f.id ? "border-ink bg-ink text-white" : "border-line-2 bg-surface text-ink-3 hover:border-line-3"
             }`}
           >
-            {f.label} · {count(f.id)}
+            {f.label} · {count(f.id).toLocaleString("en-US")}
           </button>
         ))}
       </div>
@@ -139,7 +156,11 @@ export function RecallMonitor({ initialRows }: { initialRows: OverdueRow[] }) {
           <div>Outreach</div>
           <div />
         </div>
-        {visible.length === 0 ? <div className="border-t border-line px-5 py-8 text-center text-sm text-ink-2">Nobody in this group.</div> : null}
+        {visible.length === 0 ? (
+          <div className="border-t border-line px-5 py-8 text-center text-sm text-ink-2">
+            {filter === "contacted" ? "Nobody has been contacted yet. Run recall now to contact the first batch." : "Nobody in this group."}
+          </div>
+        ) : null}
         {visible.map((r) => {
           const i = rows.findIndex((x) => x.id === r.id);
           return (
@@ -156,12 +177,16 @@ export function RecallMonitor({ initialRows }: { initialRows: OverdueRow[] }) {
                   <span className="whitespace-nowrap rounded border border-dashed border-line-3 px-1.5 py-px text-[11px] text-ink-2">Sponsored info</span>
                 ) : null}
               </div>
-              <div className="flex min-w-0 gap-1.5">
-                {r.conditions.map((c) => (
-                  <span key={c} className="whitespace-nowrap rounded bg-fill px-2 py-[3px] text-xs">
+              {/* At most two chips, then "+N". overflow-hidden keeps a long name from spilling into the next column. */}
+              <div className="flex min-w-0 items-center gap-1.5 overflow-hidden" title={r.conditions.join(", ")}>
+                {r.conditions.slice(0, 2).map((c) => (
+                  <span key={c} className="min-w-0 truncate whitespace-nowrap rounded bg-fill px-2 py-[3px] text-xs">
                     {c}
                   </span>
                 ))}
+                {r.conditions.length > 2 ? (
+                  <span className="shrink-0 whitespace-nowrap rounded bg-fill px-2 py-[3px] text-xs text-ink-2">+{r.conditions.length - 2}</span>
+                ) : null}
               </div>
               <div className="text-[13px] text-ink-2">{fmtDate(r.last_visit)}</div>
               <div className={`text-[13px] font-semibold ${overdueTone(r.months_overdue)}`}>{r.months_overdue} mo</div>
@@ -183,10 +208,25 @@ export function RecallMonitor({ initialRows }: { initialRows: OverdueRow[] }) {
             </div>
           );
         })}
+        {matching.length > visible.length ? (
+          <div className="flex items-center justify-between gap-4 border-t border-line bg-subtle px-5 py-3 text-[13px] text-ink-2">
+            <span>
+              Showing {visible.length.toLocaleString("en-US")} of {matching.length.toLocaleString("en-US")}, most overdue first.
+            </span>
+            <button
+              type="button"
+              onClick={() => setShown((n) => n + PAGE_SIZE)}
+              className="h-[30px] rounded-lg border border-line-2 bg-surface px-3 text-[12.5px] font-medium text-ink hover:bg-fill"
+            >
+              Show {Math.min(PAGE_SIZE, matching.length - visible.length)} more
+            </button>
+          </div>
+        ) : null}
       </div>
 
       <p className="text-xs text-ink-2">
-        Every overdue patient with consent on file is contacted. Hold takes someone out of the next run. Do-not-contact flags are always respected.
+        Every overdue patient with consent on file is contacted, {RECALL_BATCH_SIZE} per run, most overdue first. Hold takes someone out of the next run.
+        Do-not-contact flags are always respected.
       </p>
     </div>
   );

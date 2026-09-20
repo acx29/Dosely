@@ -337,7 +337,8 @@ as $$
         'visits_booked',          (select count(*) from events where type = 'appointment_booked' and ts <= now() and ts > now() - make_interval(days => p_days)));
 $$;
 
--- Physician app opens. About 60% of physicians open the app on a working day. One row each.
+-- Physician app opens. About 60% of physicians open the app on a working day and about 25% on a
+-- weekend day. One row each. Weekends are not zero: a demo on a Sunday would otherwise never move.
 create or replace function public.simulate_opens(p_day date)
 returns integer
 language plpgsql
@@ -345,15 +346,15 @@ set search_path = public
 as $$
 declare
     v_added integer;
+    v_rate  double precision := case when extract(isodow from p_day) >= 6 then 0.25 else 0.60 end;
 begin
-    if extract(isodow from p_day) >= 6 then return 0; end if;
     if exists (select 1 from events where type = 'digest_opened' and simulated
                   and (ts at time zone 'America/New_York')::date = p_day) then return 0; end if;
     insert into events (ts, clinic_name, doctor_id, type, simulated)
     select (p_day + time '07:30' + make_interval(mins => floor(dosely_u('open-at:' || d.id || p_day) * 540)::int)) at time zone 'America/New_York',
            d.clinic_name, d.id, 'digest_opened', true
       from ehr_doctors d
-     where dosely_u('open:' || d.id || p_day) < 0.60;
+     where dosely_u('open:' || d.id || p_day) < v_rate;
     get diagnostics v_added = row_count;
     return v_added;
 end;

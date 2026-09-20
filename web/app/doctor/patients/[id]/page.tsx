@@ -3,6 +3,7 @@ import { notFound } from "next/navigation";
 import { Card, Row } from "@/components/Card";
 import { Pill, StatusPill } from "@/components/Pill";
 import { SmsThread } from "@/components/SmsThread";
+import { SponsoredMatches } from "@/components/SponsoredMatches";
 import { SponsoredPanel } from "@/components/SponsoredPanel";
 import { Timeline } from "@/components/Timeline";
 import { Transcript } from "@/components/Transcript";
@@ -114,6 +115,14 @@ export default async function PatientPage({ params }: { params: Promise<{ id: st
               <SmsThread messages={p.sms_thread} />
             </Card>
           ) : null}
+
+          {/* This column was sized around the transcript. Without one it ends early and leaves a gap
+              beside the taller right column, so the timeline takes the transcript's place here. */}
+          {!p.transcript ? (
+            <Card title="Outreach timeline">
+              <Timeline events={p.timeline} />
+            </Card>
+          ) : null}
         </div>
 
         <div className="flex flex-col gap-5">
@@ -155,13 +164,18 @@ export default async function PatientPage({ params }: { params: Promise<{ id: st
             </Card>
           ) : null}
 
-          <Card title="Outreach timeline">
-            <Timeline events={p.timeline} />
-          </Card>
+          {p.transcript ? (
+            <Card title="Outreach timeline">
+              <Timeline events={p.timeline} />
+            </Card>
+          ) : null}
         </div>
       </div>
 
-      {/* Always last. Renders nothing when the API returns null. */}
+      {/* Always last. The RAG pipeline's top matches, with similarity scores and Gemini explanations. */}
+      <SponsoredMatches patientId={p.id} matches={p.sponsored_matches ?? []} />
+
+      {/* The earlier single-drug panel. Only the fixtures still supply it. Renders nothing when null. */}
       <SponsoredPanel panel={p.sponsored_panel} />
     </div>
   );

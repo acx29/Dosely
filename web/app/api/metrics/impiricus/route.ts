@@ -12,10 +12,18 @@ export const dynamic = "force-dynamic";
 const DAYS = 30;
 
 export async function GET() {
-  const { data, error } = await callDb("impiricus_overview", { p_days: DAYS });
-  if (error) return NextResponse.json({ error }, { status: 500 });
+  const [overview, campaigns] = await Promise.all([
+    callDb("impiricus_overview", { p_days: DAYS }),
+    callDb("impiricus_campaigns", { p_days: DAYS }),
+  ]);
+  if (overview.error) return NextResponse.json({ error: overview.error }, { status: 500 });
 
-  const totals = data as Pick<ImpiricusMetrics, "practices_active" | "weekly_physician_opens" | "patients_recalled" | "visits_booked">;
-  const body: ImpiricusMetrics = { period: `Last ${DAYS} days`, ...totals, campaigns: [] };
+  const totals = overview.data as Pick<ImpiricusMetrics, "practices_active" | "weekly_physician_opens" | "patients_recalled" | "visits_booked">;
+  const body: ImpiricusMetrics = {
+    period: `Last ${DAYS} days`,
+    ...totals,
+    // Empty until a physician has opened a card that carries a panel. Also empty if 08_panels.sql has not been run yet.
+    campaigns: campaigns.error ? [] : (campaigns.data as ImpiricusMetrics["campaigns"]),
+  };
   return NextResponse.json(body);
 }

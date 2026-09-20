@@ -218,12 +218,17 @@ $$;
 -- One run of the recall agent
 -- ------------------------------------------------------------------
 
+-- The earlier version took five settings. Adding a sixth creates a second function with the same
+-- name, and a plain "run_recall()" call could then not tell them apart. Drop the old one first.
+drop function if exists public.run_recall(timestamptz, text, integer, integer, integer);
+
 create or replace function public.run_recall(
     p_as_of          timestamptz default now(),
     p_trigger        text        default 'cron',
     p_window_minutes integer     default 30,   -- calls are spread across this many minutes
     p_demo_batch     integer     default 12,   -- patients contacted per run at the demo practice
-    p_other_batch    integer     default 4)    -- patients contacted per run at every other practice
+    p_other_batch    integer     default 4,    -- patients contacted per run at every other practice
+    p_only_patients  bigint[]    default null) -- when given, contact exactly these patients (if eligible) and nobody else
 returns jsonb
 language plpgsql
 set search_path = public
@@ -343,13 +348,17 @@ begin
                                        or o.status in ('queued', 'calling', 'text_sent', 'booked')))
                and not exists (select 1 from ehr_appointments ap where ap.patient_id = p.id
                                   and ap.status = 'scheduled' and ap.appointment_date > p_as_of)
+               -- A targeted run looks only at the listed patients. The same eligibility rules still apply to them.
+               and (p_only_patients is null or p.id = any(p_only_patients))
         )
         select * from eligible
-         where rk <= case when clinic_name = c_demo_clinic then p_demo_batch else p_other_batch end
+         where rk <= case when p_only_patients is not null then cardinality(p_only_patients)
+                          when clinic_name = c_demo_clinic then p_demo_batch else p_other_batch end
          order by clinic_name, rk
     loop
         v_key    := r.id || ':' || v_run_id;
-        v_batch  := case when r.clinic_name = c_demo_clinic then p_demo_batch else p_other_batch end;
+        v_batch  := case when p_only_patients is not null then cardinality(p_only_patients)
+                         when r.clinic_name = c_demo_clinic then p_demo_batch else p_other_batch end;
         v_gap    := (p_window_minutes * 60.0) / greatest(v_batch, 1);
         t0       := p_as_of + make_interval(secs => 15 + (r.rk - 1) * v_gap + dosely_u('jitter:' || v_key) * v_gap * 0.7);
         v_sms_ok := r.sms_ok;
@@ -565,13 +574,13 @@ select o.id, o.patient_id, o.doctor_id, o.clinic_name, o.recall_run_id, o.channe
 -- Only the secret key (service_role) and scheduled database jobs may run these.
 -- ------------------------------------------------------------------
 
-revoke execute on function public.run_recall(timestamptz, text, integer, integer, integer) from public, anon, authenticated;
+revoke execute on function public.run_recall(timestamptz, text, integer, integer, integer, bigint[]) from public, anon, authenticated;
 revoke execute on function public.backfill_recall(integer, integer, integer)               from public, anon, authenticated;
 revoke execute on function public.ensure_slots(date, integer)                              from public, anon, authenticated;
 revoke execute on function public.seed_practice_calendar(text)                             from public, anon, authenticated;
 revoke execute on function public.dosely_book(bigint, bigint, bigint, text, text, bigint, timestamptz, text, text, text, boolean, text) from public, anon, authenticated;
 revoke execute on function public.dosely_event(timestamptz, text, bigint, bigint, bigint, text, text, bigint, jsonb) from public, anon, authenticated;
-grant  execute on function public.run_recall(timestamptz, text, integer, integer, integer) to service_role;
+grant  execute on function public.run_recall(timestamptz, text, integer, integer, integer, bigint[]) to service_role;
 grant  execute on function public.backfill_recall(integer, integer, integer)               to service_role;
 grant  execute on function public.ensure_slots(date, integer)                              to service_role;
 grant  execute on function public.seed_practice_calendar(text)                             to service_role;
